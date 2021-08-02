@@ -72,6 +72,18 @@ const makeForkEmbed = (c: GithubHooks) => {
 	return embed;
 };
 
+const makeStarEmbed = (c: GithubHooks) => {
+	const embed = templateEmbed()
+		.setTitle(
+			`[${c.repository.full_name}] ${
+				c.starred_at == null ? 'Star removed' : 'New star added'
+			}`,
+			c.forkee?.html_url
+		)
+		.setAuthor(c.sender?.login, c.sender?.avatar_url, c.sender?.html_url);
+	return embed;
+};
+
 const makeReleaseEmbed = (c: any) => {
 	const embed = templateEmbed()
 		.setTitle(
@@ -91,6 +103,8 @@ const makeEmbed = (c: any) => {
 		? makeForkEmbed(c)
 		: c.release
 		? makeReleaseEmbed(c)
+		: c.starred_at
+		? makeStarEmbed(c)
 		: undefined;
 };
 

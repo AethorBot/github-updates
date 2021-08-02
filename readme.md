@@ -7,6 +7,7 @@ This repository hosts the webhook forwarder of aethor you can contribute by addi
 - issues/comments
 - commits
 - forks
+- release
 - stars
 
 ### Contributing
