@@ -48,7 +48,7 @@ const makeForkEmbed = (c: GithubHooks) => {
 
 const makeStarEmbed = (c: GithubHooks) => {
   const embed = templateEmbed()
-    .setTitle(`[${c.repository.full_name}] ${c.starred_at == null ? "Star removed" : "New star added"}`, c.forkee?.html_url)
+    .setTitle(`[${c.repository.full_name}] ${c.starred_at == null ? "Star removed" : "New star added"}`, c.repository.html_url)
     .setAuthor(c.sender?.login, c.sender?.avatar_url, c.sender?.html_url)
     .setFooter(`${NAME}, ${c.repository.stargazers_count == 1 ? "1 Star" : `${c.repository.stargazers_count} Stars`}`, ICON);
   return embed;
