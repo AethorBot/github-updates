@@ -16,4 +16,8 @@ This repository hosts the webhook forwarder of aethor you can contribute by addi
 - Pr fixing types
 - Add more events
 
+### Goals
+
+- write test ( feel free to make a pr )
+
 ![preview](assets/commit.png)

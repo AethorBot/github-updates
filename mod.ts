@@ -6,21 +6,26 @@ import { serve, json } from 'https://deno.land/x/sift@0.3.5/mod.ts';
 import { NaticoEmbed } from 'https://deno.land/x/natico@2.3.0-rc.1/src/util/Embed.ts';
 import { GithubHooks } from './types.ts';
 rest.token = `Bot ${Deno.env.get('TOKEN')!}`;
-const channels = [818158216156413973n, 871713062120484885n];
+const NAME = Deno.env.get('NAME') ?? 'Aethor';
+const ICON =
+	Deno.env.get('ICON') ??
+	'https://cdn.discordapp.com/avatars/870383692403593226/910b4e1f4e19d745dd080930044f8afc.png?size=2048';
+const channels = Deno.env.get('CHANNELS')
+	? Deno.env
+			.get('CHANNELS')!
+			.split('|')
+			?.map((x) => BigInt(x))
+	: [818158216156413973n, 871713062120484885n];
+
 const parseJson = (text: string) => {
 	try {
 		return JSON.parse(text);
-	} catch (e) {
+	} catch (_) {
 		return undefined;
 	}
 };
 const templateEmbed = () =>
-	new NaticoEmbed()
-		.setFooter(
-			'Aethor',
-			'https://cdn.discordapp.com/avatars/870383692403593226/910b4e1f4e19d745dd080930044f8afc.png?size=2048'
-		)
-		.setTimestamp();
+	new NaticoEmbed().setFooter(NAME, ICON).setTimestamp();
 
 const makeIssueEmbed = (c: GithubHooks) => {
 	const embed = templateEmbed()
@@ -30,11 +35,13 @@ const makeIssueEmbed = (c: GithubHooks) => {
 			c.issue?.html_url
 		)
 		.setDescription(`${c.issue?.body}`);
-	if (c.issue?.comments !== 0)
-		embed.setTitle(
-			`[${c.repository.full_name}] New comment on issue #${c.issue?.number}: ${c.issue?.title}`,
-			c.issue?.html_url
-		);
+	if (c.comment)
+		embed
+			.setTitle(
+				`[${c.repository.full_name}] New comment on issue #${c.issue?.number}: ${c.issue?.title}`,
+				c.issue?.html_url
+			)
+			.setDescription(c.comment.body);
 	return embed;
 };
 const makeCommitEmbed = (c: GithubHooks) => {
@@ -80,7 +87,8 @@ const makeStarEmbed = (c: GithubHooks) => {
 			}`,
 			c.forkee?.html_url
 		)
-		.setAuthor(c.sender?.login, c.sender?.avatar_url, c.sender?.html_url);
+		.setAuthor(c.sender?.login, c.sender?.avatar_url, c.sender?.html_url)
+		.setFooter(`${c.repository.stargazers_count} Stars ${NAME}`);
 	return embed;
 };
 
