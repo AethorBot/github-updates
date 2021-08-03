@@ -1,5 +1,5 @@
 import { rest, sendMessage } from "https://deno.land/x/discordeno@12.0.1/mod.ts";
-import { serve, json } from "https://deno.land/x/sift@0.3.5/mod.ts";
+import { json, serve } from "https://deno.land/x/sift@0.3.5/mod.ts";
 import { NaticoEmbed } from "https://deno.land/x/natico@2.3.0-rc.1/src/util/Embed.ts";
 import { GithubHooks } from "./types.ts";
 
@@ -31,8 +31,9 @@ const makeIssueEmbed = (c: GithubHooks) => {
     .setAuthor(c.sender.login, c.sender.avatar_url, c.sender.html_url)
     .setTitle(`[${c.repository.full_name}] Issue opened #${c.issue?.number} ${c.issue?.title}`, c.issue?.html_url)
     .setDescription(`${c.issue?.body}`);
-  if (c.comment)
+  if (c.comment) {
     embed.setTitle(`[${c.repository.full_name}] New comment on issue #${c.issue?.number}: ${c.issue?.title}`, c.issue?.html_url).setDescription(c.comment.body);
+  }
   return embed;
 };
 
@@ -83,21 +84,30 @@ const makeEmbed = (c: any) => {
 
 serve({
   "/": async (req: Request) => {
-    console.log(req.headers.get("accept"));
+    if (Deno.env.get("WEBSITE_AUTH"))
+      if (req.headers.get("authorization") !== Deno.env.get("WEBSITE_AUTH"))
+        return json({
+          success: false,
+          message: "Theres nothing here",
+        });
+
     const js: GithubHooks = parseJson(await req.text());
-    if (!js)
+    if (!js) {
       return json({
         success: false,
         message: "Theres nothing here",
       });
+    }
 
     try {
       const em = makeEmbed(js);
-      if (em)
-        for (const channel of channels)
+      if (em) {
+        for (const channel of channels) {
           await sendMessage(channel, {
             embeds: [em],
           });
+        }
+      }
       return json({
         success: "true",
       });
