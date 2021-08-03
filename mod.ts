@@ -34,6 +34,14 @@ const makeIssueEmbed = (c: GithubHooks) => {
   if (c.comment) {
     embed.setTitle(`[${c.repository.full_name}] New comment on issue #${c.issue?.number}: ${c.issue?.title}`, c.issue?.html_url).setDescription(c.comment.body);
   }
+  if (c.action == "closed") {
+    embed.setTitle(`[${c.repository.full_name}] Issue closed #${c.issue?.number}: ${c.issue?.title}`, c.issue?.html_url);
+    embed.description = "";
+  }
+  if (c.action == "reopened") {
+    embed.setTitle(`[${c.repository.full_name}] Issue reopened #${c.issue?.number}: ${c.issue?.title}`, c.issue?.html_url);
+    embed.description = "";
+  }
   return embed;
 };
 
