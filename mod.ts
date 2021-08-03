@@ -23,11 +23,16 @@ const parseJson = (text: string) => {
     return undefined;
   }
 };
+
 const templateEmbed = () => new NaticoEmbed().setFooter(NAME, ICON).setTimestamp();
 
 const makeIssueEmbed = (c: GithubHooks) => {
-  const embed = templateEmbed().setAuthor(c.sender.login, c.sender.avatar_url, c.sender.html_url).setTitle(`[${c.repository.full_name}] Issue opened #${c.issue?.number} ${c.issue?.title}`, c.issue?.html_url).setDescription(`${c.issue?.body}`);
-  if (c.comment) embed.setTitle(`[${c.repository.full_name}] New comment on issue #${c.issue?.number}: ${c.issue?.title}`, c.issue?.html_url).setDescription(c.comment.body);
+  const embed = templateEmbed()
+    .setAuthor(c.sender.login, c.sender.avatar_url, c.sender.html_url)
+    .setTitle(`[${c.repository.full_name}] Issue opened #${c.issue?.number} ${c.issue?.title}`, c.issue?.html_url)
+    .setDescription(`${c.issue?.body}`);
+  if (c.comment)
+    embed.setTitle(`[${c.repository.full_name}] New comment on issue #${c.issue?.number}: ${c.issue?.title}`, c.issue?.html_url).setDescription(c.comment.body);
   return embed;
 };
 
@@ -55,17 +60,30 @@ const makeStarEmbed = (c: GithubHooks) => {
 };
 
 const makeReleaseEmbed = (c: any) => {
-  const embed = templateEmbed().setTitle(`[${c.repository.full_name}] New release published: ${c.release?.name}`, c.release?.html_url).setAuthor(c.sender.login, c.sender.avatar_url, c.sender.html_url);
+  const embed = templateEmbed()
+    .setTitle(`[${c.repository.full_name}] New release published: ${c.release?.name}`, c.release?.html_url)
+    .setAuthor(c.sender.login, c.sender.avatar_url, c.sender.html_url);
   return embed;
 };
 
 //TODO: ADD RELEASE TYPES
 const makeEmbed = (c: any) => {
-  return c.issue ? makeIssueEmbed(c) : c.commits ? makeCommitEmbed(c) : c.forkee ? makeForkEmbed(c) : c.release ? makeReleaseEmbed(c) : c.starred_at ? makeStarEmbed(c) : undefined;
+  return c.issue
+    ? makeIssueEmbed(c)
+    : c.commits
+    ? makeCommitEmbed(c)
+    : c.forkee
+    ? makeForkEmbed(c)
+    : c.release
+    ? makeReleaseEmbed(c)
+    : c.starred_at
+    ? makeStarEmbed(c)
+    : undefined;
 };
 
 serve({
   "/": async (req: Request) => {
+    console.log(req.headers.get("accept"));
     const js: GithubHooks = parseJson(await req.text());
     if (!js)
       return json({
